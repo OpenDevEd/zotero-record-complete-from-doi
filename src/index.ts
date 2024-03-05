@@ -43,22 +43,6 @@ const crossrefKeys = {
   url: "URL",
 };
 
-// Instead use
-// public get_doi_from_item(item)
-async function getDoi(item: any) {
-  if (item.DOI) return item.DOI;
-  let Doi: string = "";
-  const extra = item.extra.split("\n");
-  for (const el of extra) {
-    if (el.includes("DOI:")) {
-      Doi = el.split("DOI:")[1].trim();
-    }
-  }
-  if (Doi === undefined || Doi.length === 0) {
-    return undefined;
-  }
-  return Doi;
-}
 
 async function getCrossref(doi: string) {
   const url = `https://api.crossref.org/works/${doi}`;
@@ -145,7 +129,7 @@ async function process_item(group: string, id: string, test: boolean) {
       console.log("Not a journal article");
       return;
     }
-    const doi = await getDoi(item);
+    const doi = await zotero.get_doi(item);
     if (doi === undefined) {
       console.log("DOI not found");
       return;
