@@ -6,6 +6,6 @@
     "zotero-lib": "^1.0.98"
   },
   "scripts": {
-    "items": "npx ts-node doi.ts items"
+    "items": "npx ts-node src/index.ts items"
   }
 }
