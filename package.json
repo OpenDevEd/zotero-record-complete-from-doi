@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@types/yargs": "^17.0.32",
+    "axios": "^1.6.7",
+    "yargs": "github:yargs/yargs",
+    "zotero-lib": "^1.0.98"
+  },
+  "scripts": {
+    "items": "npx ts-node doi.ts items"
+  }
+}
