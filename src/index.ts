@@ -13,10 +13,9 @@ const argv = yargs(process.argv.slice(2))
     type: "boolean",
     default: false,
   })
-  .demandCommand() // Require a command to be provided
-  .help().argv; // Add a help command
+  .demandCommand()
+  .help().argv;
 
-// Call the main function after parsing
 main(argv);
 
 // Instead of this, it would be better to write some JQ and use the JQ function to do this.
@@ -43,7 +42,6 @@ const crossrefKeys = {
   url: "URL",
 };
 
-
 async function getCrossref(doi: string) {
   const url = `https://api.crossref.org/works/${doi}`;
   const res = await axios.get(url);
@@ -63,48 +61,39 @@ async function extractKeyGroupVariable(key: any) {
       );
       return [null, null];
     }
-
+    // if the input is like zotero://select/groups/2405685/items/JLEWADHF
     return [res[1], res[3]];
   }
 
   if (!res) {
-    // There wasn't a match. We might have a group, or a key.
     if (key.match(/^([A-Z01-9]+)/)) {
       // if the input like 2405685:JLEWADHF
       const match = key.match(/^(\d+):([A-Z01-9]+)/);
       if (match) {
         return [match[1], match[2]];
       }
-
+      // if the input like JLEWADHF
       return [undefined, key];
     }
   }
+  // the input is not a valid key
   return [undefined, undefined];
 }
 
 async function main(argv: any) {
-  // console.log(argv);
-
   const items = argv.items;
   if (!items) {
     console.log("No items specified");
     return;
   }
   for (const item of items) {
-    // This needs to be improved. Input can be:
-    // zotero://select/groups/2405685/items/JLEWADHF
-    // 2405685:JLEWADHF
-    // JLEWADHF --group 2405685
-    // There's a function in zotero-lib that takes a key in those formats and returns a group / item pair - you uave to look up the actual name.
+    // extract the group and id from the item
     const [group, id] = await extractKeyGroupVariable(item);
-    // console.log(group, id);
-
     if (!group && !argv.group) {
       console.log(`No group specified so the item ${id} will not be processed`);
       continue;
     }
     const group_actual = argv.group ? argv.group : group;
-    // console.log(group_actual);
     await process_item(group_actual, id, argv.test);
   }
 }
@@ -169,9 +158,7 @@ async function process_item(group: string, id: string, test: boolean) {
       }
     }
   } catch (e) {
-    // console.log(e);
     console.log(`Error processing item ${id}`);
-
     return;
   }
 }
