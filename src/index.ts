@@ -2,6 +2,7 @@
 import yargs from "yargs";
 import Zotero from "zotero-lib";
 import axios from "axios";
+import fs from "fs";
 
 const argv = yargs(process.argv.slice(2))
   .command("items [items...]", "Process items")
@@ -106,6 +107,23 @@ function as_value(value: any) {
   return value;
 }
 
+function getdoi(item: any) {
+    // This needs to be fixed in zotero-lib:
+    // await zotero.get_doi(item);
+    let doi = "";
+    const doifield = item.DOI;
+    const url = item.url;
+    if (!doifield && url) {
+      const match = url.match(/(10.\d+\/.*)/);
+      if (match) {
+        doi = match[1];
+      };
+    } else {
+      doi = doifield;
+    }
+    return doi;
+}
+
 async function process_item(group: string, id: string, test: boolean) {
   const zotero = new Zotero({ group_id: group, verbose: false });
   try {
@@ -121,10 +139,8 @@ async function process_item(group: string, id: string, test: boolean) {
       return;
     }
     console.log(item);
-    const doi = item.DOI; 
-    // This needs to be fixed in zotero-lib:
-    // await zotero.get_doi(item);
-    if (doi === undefined) {
+    const doi = getdoi(item); 
+    if (doi === undefined) {      
       console.log("DOI not found");
       return;
     } else {
@@ -132,8 +148,8 @@ async function process_item(group: string, id: string, test: boolean) {
     }
     const crossref = await getCrossref(doi);
 
-    //   fs.writeFileSync('crossref.json', JSON.stringify(crossref));
-    //   fs.writeFileSync('item.json', JSON.stringify(item));
+    fs.writeFileSync('crossref.json', JSON.stringify(crossref));
+    fs.writeFileSync('item.json', JSON.stringify(item));
 
     let fields: any = {};
     for (const [sourceKey, targetKey] of Object.entries(crossrefKeys)) {
@@ -144,8 +160,9 @@ async function process_item(group: string, id: string, test: boolean) {
         if (sourceKey === "journalAbbreviation") {
           fields[sourceKey] = as_value(targetValue);
         } else {
-          // We need to investigate this:
+          // We need to investigate this - some fields in crossref return arrays, some don't.
           fields[sourceKey] = as_value(targetValue);
+          // However, setting it like this, means we also get undefined values...
         };
       }
     }
