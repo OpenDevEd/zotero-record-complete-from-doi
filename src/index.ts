@@ -109,6 +109,7 @@ function as_value(value: any) {
 async function process_item(group: string, id: string, test: boolean) {
   const zotero = new Zotero({ group_id: group, verbose: false });
   try {
+    console.log(`Processing ${id}`);
     const item = await zotero.item({ key: [id] });
     if (item === undefined) {
       console.log(`Item ${id} not found`);
@@ -119,10 +120,15 @@ async function process_item(group: string, id: string, test: boolean) {
       console.log("Not a journal article");
       return;
     }
-    const doi = await zotero.get_doi(item);
+    console.log(item);
+    const doi = item.DOI; 
+    // This needs to be fixed in zotero-lib:
+    // await zotero.get_doi(item);
     if (doi === undefined) {
       console.log("DOI not found");
       return;
+    } else {
+      console.log(`DOI: ${doi}`);
     }
     const crossref = await getCrossref(doi);
 
@@ -137,7 +143,10 @@ async function process_item(group: string, id: string, test: boolean) {
       if (!sourceValue && targetValue) {
         if (sourceKey === "journalAbbreviation") {
           fields[sourceKey] = as_value(targetValue);
-        } else fields[sourceKey] = targetValue;
+        } else {
+          // We need to investigate this:
+          fields[sourceKey] = as_value(targetValue);
+        };
       }
     }
 
@@ -150,7 +159,6 @@ async function process_item(group: string, id: string, test: boolean) {
       const update = await zotero.update_item({
         group: group,
         verbose: false,
-
         key: id,
         json: fields,
       });
