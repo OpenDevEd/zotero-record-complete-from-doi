@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import yargs from "yargs";
 import Zotero from "zotero-lib";
 import axios from "axios";

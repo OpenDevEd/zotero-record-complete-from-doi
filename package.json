@@ -1,11 +1,28 @@
 {
-  "dependencies": {
-    "@types/yargs": "^17.0.32",
-    "axios": "^1.6.7",
-    "yargs": "github:yargs/yargs",
-    "zotero-lib": "^1.0.98"
+  "name": "zotero-complete-from-doi",
+  "version": "1.0.0",
+  "description": "Fetch zotero record. If the record has a doi, fetch metadata from crossref and use it to complete missing metadata on Zotero",
+  "main": "dist/index.js",
+  "bin": {
+    "zotero-complete-from-doi": "./dist/index.js"
   },
   "scripts": {
-    "items": "npx ts-node src/index.ts items"
+    "items": "npm run build && node dist/index.js items",
+    "items2": "npx ts-node src/index.ts items",
+    "build": "tsc",
+    "pkg": "pkg ./dist/index.js"
+  },
+  "keywords": ["zotero"],
+  "author": "OpenDevEd",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "yargs": "^17.7.2",
+    "zotero-lib": "^1.0.98"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.32",
+    "pkg": "^5.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
   }
 }
